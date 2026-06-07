@@ -399,7 +399,7 @@
     .toast-body { font-size: 0.78rem; color: var(--text-muted); }
     
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-8px); } }
+    @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-12px); } }
 
     /* Performance Matrix */
     .chart-container {
@@ -1221,8 +1221,8 @@
       area.appendChild(toast);
       
       setTimeout(() => {
-        toast.style.animation = "fadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards";
-        setTimeout(() => toast.remove(), 300);
+        toast.style.animation = "fadeOut 1s cubic-bezier(0.16, 1, 0.3, 1) forwards";
+        setTimeout(() => toast.remove(), 1000);
       }, 4000);
     }
 
