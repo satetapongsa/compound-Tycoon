@@ -340,6 +340,13 @@
     .btn-action.buy:hover {
       background: var(--success-bg);
     }
+    .btn-action.buy-ten {
+      border-color: var(--primary-hover);
+      color: var(--primary-hover);
+    }
+    .btn-action.buy-ten:hover {
+      background: rgba(99, 102, 241, 0.1);
+    }
     .btn-action.sell {
       border-color: var(--alert);
       color: var(--alert);
@@ -1016,7 +1023,8 @@
           <td style="font-weight: 500;" id="count_${key}">${s.count}</td>
           <td>
             <div class="action-group">
-              <button class="btn-action buy" onclick="buyStock('${key}')">BUY</button>
+              <button class="btn-action buy" onclick="buyStock('${key}', 1)">BUY</button>
+              <button class="btn-action buy-ten" onclick="buyStock('${key}', 10)">x10</button>
               <button class="btn-action sell" onclick="sellStock('${key}')">SELL</button>
             </div>
           </td>
@@ -1043,14 +1051,32 @@
       }
     }
 
-    function buyStock(s) { 
-      if (money >= stocks[s].price) { 
-        money -= stocks[s].price; 
-        stocks[s].count++;
-        stocks[s].price *= 1.04;
+    function buyStock(s, maxAmount = 1) { 
+      let totalCost = 0;
+      let tempPrice = stocks[s].price;
+      let unitsBought = 0;
+      
+      for (let i = 0; i < maxAmount; i++) {
+        if (money >= totalCost + tempPrice) {
+          totalCost += tempPrice;
+          tempPrice *= 1.04;
+          unitsBought++;
+        } else {
+          break;
+        }
+      }
+      
+      if (unitsBought > 0) {
+        money -= totalCost;
+        stocks[s].count += unitsBought;
+        stocks[s].price = tempPrice;
         document.getElementById("count_"+s).textContent = stocks[s].count;
-        calculateIncome(); updateHeaderMoney(); 
-      } 
+        calculateIncome(); 
+        updateHeaderMoney();
+        notify("Securities Purchased", `Acquired ${unitsBought} unit(s) of ${stocks[s].symbol}.`, "positive");
+      } else {
+        notify("Insufficient Funds", "Not enough Ledger Balance to acquire assets.", "negative");
+      }
     }
     
     function sellStock(s) {
