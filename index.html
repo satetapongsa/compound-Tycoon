@@ -653,6 +653,23 @@
           <button class="btn-mini" onclick="resetGame()">Reset Account</button>
         </div>
         <div class="list-container" id="leaderboardBody" style="flex: 1;"></div>
+        
+        <!-- Perks milestone panel -->
+        <div style="font-size: 0.72rem; padding: 10px 8px; border-top: 1px solid var(--card-border); background: rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Milestone Perks</div>
+          <div id="perk75" style="display: flex; justify-content: space-between; opacity: 0.4; transition: opacity 0.3s;">
+            <span>Rank 75: Efficiency Leap (-10% Asset Cost)</span>
+            <span id="status75" style="color: var(--text-muted); font-weight: 600;">LOCKED</span>
+          </div>
+          <div id="perk50" style="display: flex; justify-content: space-between; opacity: 0.4; transition: opacity 0.3s;">
+            <span>Rank 50: Infrastructure Boost (+20% High-tier Yield)</span>
+            <span id="status50" style="color: var(--text-muted); font-weight: 600;">LOCKED</span>
+          </div>
+          <div id="perk10" style="display: flex; justify-content: space-between; opacity: 0.4; transition: opacity 0.3s;">
+            <span>Rank 10: Hyper Leverage (2x Total Income)</span>
+            <span id="status10" style="color: var(--text-muted); font-weight: 600;">LOCKED</span>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -660,6 +677,7 @@
   <script>
     let money = 2000;
     let income = 0;
+    let playerRank = 99;
 
     // Endless Tycoon Assets Model
     let assets = {
@@ -790,7 +808,11 @@
     // --- Dynamic Pricing Helpers ---
     function getAssetCost(key) {
       const asset = assets[key];
-      return Math.floor(asset.baseCost * Math.pow(asset.costMultiplier, asset.count));
+      let cost = Math.floor(asset.baseCost * Math.pow(asset.costMultiplier, asset.count));
+      if (playerRank <= 75) {
+        cost = Math.floor(cost * 0.90); // Rank 75 discount: -10% cost
+      }
+      return cost;
     }
 
     function getTechCost(key) {
@@ -818,7 +840,11 @@
           assetYieldMultiplier += tech.quantum.level * 0.50; // +50% output per level
         }
         const totalMultiplier = (1 + (prestige.upgrades.opLeverage || 0)) * assetYieldMultiplier;
-        const assetYield = asset.baseYield * totalMultiplier;
+        let baseYield = asset.baseYield;
+        if (playerRank <= 50 && (key === 'quantumMainframe' || key === 'globalNetwork')) {
+          baseYield *= 1.20; // Rank 50 infrastructure boost: +20% base yield
+        }
+        const assetYield = baseYield * totalMultiplier;
         
         const itemDiv = document.createElement('div');
         itemDiv.style.marginBottom = '8px';
@@ -895,7 +921,11 @@
         if (key === 'computeUnit') {
           assetYieldMultiplier += tech.quantum.level * 0.50;
         }
-        baseYieldTotal += asset.count * asset.baseYield * assetYieldMultiplier;
+        let baseYield = asset.baseYield;
+        if (playerRank <= 50 && (key === 'quantumMainframe' || key === 'globalNetwork')) {
+          baseYield *= 1.20; // Rank 50 infrastructure boost: +20% base yield
+        }
+        baseYieldTotal += asset.count * baseYield * assetYieldMultiplier;
       }
 
       // Stock dividend modifiers
@@ -908,7 +938,8 @@
       // Operational Leverage prestige bonus
       const prestigeMult = 1 + (prestige.upgrades.opLeverage || 0);
       
-      income = (baseYieldTotal + dividends) * eventMultiplier * prestigeMult;
+      const rank10Bonus = (playerRank <= 10) ? 2 : 1; // Rank 10 perk: 2x total income
+      income = (baseYieldTotal + dividends) * eventMultiplier * prestigeMult * rank10Bonus;
       document.getElementById("income").textContent = (income >= 0 ? "+" : "") + formatNumber(income) + "/s";
     }
 
@@ -1257,6 +1288,9 @@
       
       list.push({ name: playerName, asset: total });
       list.sort((a,b) => b.asset - a.asset);
+
+      const playerIndex = list.findIndex(p => p.name === playerName);
+      playerRank = playerIndex + 1;
       
       const b = document.getElementById("leaderboardBody"); 
       b.innerHTML = "";
@@ -1273,11 +1307,55 @@
         `;
         b.appendChild(div);
       });
+
+      // Update perk styling in UI
+      const p75 = document.getElementById("perk75");
+      const s75 = document.getElementById("status75");
+      if (p75 && s75) {
+        if (playerRank <= 75) {
+          p75.style.opacity = "1";
+          s75.textContent = "ACTIVE";
+          s75.style.color = "var(--success)";
+        } else {
+          p75.style.opacity = "0.4";
+          s75.textContent = "LOCKED";
+          s75.style.color = "var(--text-muted)";
+        }
+      }
+
+      const p50 = document.getElementById("perk50");
+      const s50 = document.getElementById("status50");
+      if (p50 && s50) {
+        if (playerRank <= 50) {
+          p50.style.opacity = "1";
+          s50.textContent = "ACTIVE";
+          s50.style.color = "var(--success)";
+        } else {
+          p50.style.opacity = "0.4";
+          s50.textContent = "LOCKED";
+          s50.style.color = "var(--text-muted)";
+        }
+      }
+
+      const p10 = document.getElementById("perk10");
+      const s10 = document.getElementById("status10");
+      if (p10 && s10) {
+        if (playerRank <= 10) {
+          p10.style.opacity = "1";
+          s10.textContent = "ACTIVE";
+          s10.style.color = "var(--success)";
+        } else {
+          p10.style.opacity = "0.4";
+          s10.textContent = "LOCKED";
+          s10.style.color = "var(--text-muted)";
+        }
+      }
     }
 
     // --- Persistent Storage ---
     function saveGame() {
-      const state = { money, stocks, tech, prestige, assets };
+      const lastSaved = Date.now();
+      const state = { money, stocks, tech, prestige, assets, lastSaved };
       localStorage.setItem('anmumCoreV3', JSON.stringify(state));
     }
     
@@ -1315,6 +1393,10 @@
         }
         
         if (d.prestige) prestige = d.prestige;
+        
+        // Run leaderboard check first to initialize playerRank before calculating offline earnings
+        updateLeaderboard();
+        checkOfflineProgress(d);
       } else {
         // Fallback migration check for old keys V2
         const sOld = localStorage.getItem('anmumCoreV2');
@@ -1334,7 +1416,34 @@
           if (dOld.prestige) prestige = dOld.prestige;
           localStorage.removeItem('anmumCoreV2'); // Clean up
         }
+        updateLeaderboard();
       }
+    }
+
+    function checkOfflineProgress(d) {
+      if (d && d.lastSaved) {
+        const elapsedSeconds = (Date.now() - d.lastSaved) / 1000;
+        if (elapsedSeconds > 10) { // Only trigger if away for more than 10 seconds
+          calculateIncome();
+          const offlineEarnings = income * elapsedSeconds;
+          if (offlineEarnings > 0) {
+            money += offlineEarnings;
+            setTimeout(() => {
+              notify("Welcome Back!", `While you were offline, Anmum Corporation generated C$${formatNumber(offlineEarnings)} over ${formatTime(elapsedSeconds)}.`, "positive");
+            }, 1000);
+          }
+        }
+      }
+    }
+
+    function formatTime(seconds) {
+      if (seconds < 60) return Math.floor(seconds) + "s";
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return minutes + "m " + Math.floor(seconds % 60) + "s";
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return hours + "h " + (minutes % 60) + "m";
+      const days = Math.floor(hours / 24);
+      return days + "d " + (hours % 24) + "h";
     }
     
     function resetGame() { 
