@@ -102,7 +102,7 @@
     main {
       flex: 1;
       display: grid;
-      grid-template-columns: 320px 1fr 360px;
+      grid-template-columns: 330px 1fr 360px;
       gap: 16px;
       padding: 16px;
       overflow: hidden;
@@ -542,30 +542,14 @@
   <main>
     <!-- Left Column: Operations & Upgrades -->
     <div class="left-col">
-      <div class="card" style="flex: 1.2;">
+      <div class="card" style="flex: 1.3; overflow: hidden; display: flex; flex-direction: column;">
         <div class="card-title">Asset Allocation</div>
         
-        <div style="margin-bottom: 12px;">
-          <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:4px; color:var(--text-muted);">
-            <span>Compute Units [<span id="businessCount">0</span>]</span>
-          </div>
-          <button class="btn btn-secondary" onclick="buyBusiness()">
-            <span>Acquire Compute Unit</span>
-            <span>C$<span id="businessPriceDisplay">50</span></span>
-          </button>
+        <div class="list-container" id="assetsContainer" style="flex: 1;">
+          <!-- Populated dynamically via JS -->
         </div>
 
-        <div style="margin-bottom: 12px;">
-          <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:4px; color:var(--text-muted);">
-            <span>Warehouses [<span id="propertyCount">0</span>]</span>
-          </div>
-          <button class="btn btn-secondary" onclick="buyProperty()">
-            <span>Construct Warehouse</span>
-            <span>C$<span id="propertyPriceDisplay">200</span></span>
-          </button>
-        </div>
-
-        <div style="margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.04);">
+        <div style="padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.04); margin-top: 8px;">
           <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:4px; color:var(--text-muted);">
             <span>Operational Scale (Multiplier x<span id="miningMultDisplay">1</span>)</span>
           </div>
@@ -577,41 +561,42 @@
       </div>
 
       <!-- Tabs for upgrades and prestige -->
-      <div class="card" style="flex: 1.5;">
+      <div class="card" style="flex: 1.4; overflow: hidden;">
         <div class="tabs-header">
           <button class="tab-btn active" id="tabUpgrades" onclick="switchTab('upgrades')">System Upgrades</button>
           <button class="tab-btn" id="tabPrestige" onclick="switchTab('prestige')">Restructure</button>
         </div>
 
         <!-- Normal Upgrades Tab -->
-        <div class="tab-content active" id="contentUpgrades">
+        <div class="tab-content active" id="contentUpgrades" style="overflow-y: auto;">
+          
           <button class="btn btn-secondary" id="btnTechQuantum" style="margin-bottom:8px;" onclick="buyTech('quantum')">
             <div style="text-align:left; display:flex; flex-direction:column; gap:2px;">
-              <span style="font-size:0.75rem; font-weight:600;">Liquid Cooling</span>
-              <span style="font-size:0.68rem; color:var(--text-muted);">Doubles Compute Unit yields</span>
+              <span style="font-size:0.75rem; font-weight:600;" id="lblTechQuantum">Liquid Cooling (Lvl 0)</span>
+              <span style="font-size:0.68rem; color:var(--text-muted);">Adds +50% yield output per level to Compute Units</span>
             </div>
-            <span>C$1,000</span>
+            <span id="costTechQuantum">C$1.00K</span>
           </button>
 
           <button class="btn btn-secondary" id="btnTechAI" style="margin-bottom:8px;" onclick="buyTech('aiTrader')">
             <div style="text-align:left; display:flex; flex-direction:column; gap:2px;">
-              <span style="font-size:0.75rem; font-weight:600;">Arbitrage Analytics</span>
-              <span style="font-size:0.68rem; color:var(--text-muted);">Stock yield margins +50%</span>
+              <span style="font-size:0.75rem; font-weight:600;" id="lblTechAI">Arbitrage Analytics (Lvl 0)</span>
+              <span style="font-size:0.68rem; color:var(--text-muted);">Adds +50% stock yield margin per level</span>
             </div>
-            <span>C$2,500</span>
+            <span id="costTechAI">C$2.50K</span>
           </button>
 
           <button class="btn btn-secondary" id="btnTechFirewall" style="margin-bottom:8px;" onclick="buyTech('firewall')">
             <div style="text-align:left; display:flex; flex-direction:column; gap:2px;">
-              <span style="font-size:0.75rem; font-weight:600;">Enterprise Security</span>
-              <span style="font-size:0.68rem; color:var(--text-muted);">Immunizes against market disruption</span>
+              <span style="font-size:0.75rem; font-weight:600;" id="lblTechFirewall">Enterprise Security</span>
+              <span style="font-size:0.68rem; color:var(--text-muted);">Deflects negative market corrections</span>
             </div>
-            <span>C$5,000</span>
+            <span id="costTechFirewall">C$5.00K</span>
           </button>
         </div>
 
         <!-- Prestige Tab -->
-        <div class="tab-content" id="contentPrestige">
+        <div class="tab-content" id="contentPrestige" style="overflow-y: auto;">
           <div class="prestige-container">
             <div class="prestige-stat">
               <span style="color:var(--text-muted);">Equity Points (EP) Owned:</span>
@@ -629,20 +614,20 @@
             </button>
 
             <div style="border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 10px; margin-top: 4px;">
-              <div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-bottom:8px;">Equity Bonuses</div>
+              <div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-bottom:8px;">Equity Upgrades</div>
               
               <div class="prestige-upgrade-card">
                 <div class="prestige-upgrade-header">
                   <span>Operational Leverage</span>
-                  <button class="btn-mini" onclick="buyPrestigeUpgrade('opLeverage')">Upgrade (1 EP)</button>
+                  <button class="btn-mini" id="btnPrestigeOp" onclick="buyPrestigeUpgrade('opLeverage')">Upgrade (1 EP)</button>
                 </div>
-                <div class="prestige-upgrade-desc">Level <span id="opLeverageLvl">0</span>: Permanent +100% total yield multiplier</div>
+                <div class="prestige-upgrade-desc">Level <span id="opLeverageLvl">0</span>: Permanent +100% total yield modifier</div>
               </div>
 
               <div class="prestige-upgrade-card">
                 <div class="prestige-upgrade-header">
                   <span>Liquidity Accelerator</span>
-                  <button class="btn-mini" onclick="buyPrestigeUpgrade('liquidity')">Upgrade (1 EP)</button>
+                  <button class="btn-mini" id="btnPrestigeLiq" onclick="buyPrestigeUpgrade('liquidity')">Upgrade (1 EP)</button>
                 </div>
                 <div class="prestige-upgrade-desc">Level <span id="liquidityLvl">0</span>: +20% Stock simulation frequency</div>
               </div>
@@ -650,9 +635,9 @@
               <div class="prestige-upgrade-card">
                 <div class="prestige-upgrade-header">
                   <span>Capital Reserve</span>
-                  <button class="btn-mini" onclick="buyPrestigeUpgrade('capital')">Upgrade (1 EP)</button>
+                  <button class="btn-mini" id="btnPrestigeCap" onclick="buyPrestigeUpgrade('capital')">Upgrade (1 EP)</button>
                 </div>
-                <div class="prestige-upgrade-desc">Level <span id="capitalLvl">0</span>: Start next run with +C$5,000 balance</div>
+                <div class="prestige-upgrade-desc">Level <span id="capitalLvl">0</span>: Start next run with +C$5.00K balance</div>
               </div>
             </div>
           </div>
@@ -670,9 +655,9 @@
         </div>
       </div>
 
-      <div class="card" style="flex: 1.4;">
+      <div class="card" style="flex: 1.4; overflow: hidden; display: flex; flex-direction: column;">
         <div class="card-title">Securities Exchange</div>
-        <div class="list-container">
+        <div class="list-container" style="flex: 1;">
           <table>
             <thead>
               <tr>
@@ -702,12 +687,12 @@
         </div>
       </div>
 
-      <div class="card" style="flex: 1;">
+      <div class="card" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
         <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
           <span>Active Ledger Registry</span>
           <button class="btn-mini" onclick="resetGame()">Reset Account</button>
         </div>
-        <div class="list-container" id="leaderboardBody"></div>
+        <div class="list-container" id="leaderboardBody" style="flex: 1;"></div>
       </div>
     </div>
   </main>
@@ -718,13 +703,16 @@
     let income = 0;
     let clickPower = 1;
     
-    let businessCount = 0;
-    let propertyCount = 0;
     let upgradeLevel = 1;
     let upgradeCost = 500;
 
-    const businessPrice = 50;
-    const propertyPrice = 200;
+    // Endless Tycoon Assets Model
+    let assets = {
+      computeUnit: { name: "Compute Unit", count: 0, baseCost: 50, costMultiplier: 1.15, baseYield: 1 },
+      dataCenter: { name: "Data Center", count: 0, baseCost: 500, costMultiplier: 1.15, baseYield: 12 },
+      quantumMainframe: { name: "Quantum Mainframe", count: 0, baseCost: 5000, costMultiplier: 1.15, baseYield: 150 },
+      globalNetwork: { name: "Global Network", count: 0, baseCost: 80000, costMultiplier: 1.15, baseYield: 2500 }
+    };
 
     let stocks = {
       wavyBank: { name: "Federal Bank", count: 0, price: 49, yield: 0.05, symbol: "FED-B" },
@@ -735,18 +723,17 @@
     };
 
     let tech = {
-      quantum: { owned: false, cost: 1000 },
-      aiTrader: { owned: false, cost: 2500 },
+      quantum: { level: 0, baseCost: 1000, costMultiplier: 3.5 },
+      aiTrader: { level: 0, baseCost: 2500, costMultiplier: 3.5 },
       firewall: { owned: false, cost: 5000 }
     };
 
-    // Prestige system state
     let prestige = {
       points: 0,
       upgrades: {
-        opLeverage: 0, // +100% income per level
-        liquidity: 0,  // +20% simulation frequency
-        capital: 0     // Start with +5000 credits
+        opLeverage: 0, 
+        liquidity: 0,  
+        capital: 0     
       }
     };
 
@@ -764,9 +751,21 @@
     Chart.defaults.font.family = 'Inter';
     Chart.defaults.font.size = 10;
     
+    // --- Metric Number Formatter ---
+    function formatNumber(num) {
+      if (num === null || num === undefined || isNaN(num)) return "0.00";
+      if (num < 1000) return num.toFixed(2);
+      const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc"];
+      const i = Math.floor(Math.log10(num) / 3);
+      if (i >= suffixes.length) return num.toExponential(2);
+      const formatted = (num / Math.pow(10, i * 3)).toFixed(2);
+      return formatted + suffixes[i];
+    }
+
     // --- Initial setup ---
     function init() {
       loadGame();
+      renderAssets();
       renderStockTable();
       updateTechUI();
       updatePrestigeUI();
@@ -784,12 +783,16 @@
         money += income * delta;
         updateHeaderMoney();
         checkPrestigeAllowance();
+        
+        // Dynamically update asset buy buttons state based on balance
+        updateAssetButtonsState();
+        updateTechButtonsState();
+        updatePrestigeButtonsState();
       }, 1000);
 
       // Simulation ticks
       let tickCount = 0;
       
-      // Stock simulation speed modification based on prestige upgrade
       function getSimInterval() {
         const speedMultiplier = 1 + (prestige.upgrades.liquidity * 0.2);
         return Math.max(200, 1000 / speedMultiplier);
@@ -824,40 +827,134 @@
       }
     }
 
-    // --- System Actions ---
+    // --- Dynamic Pricing Helpers ---
+    function getAssetCost(key) {
+      const asset = assets[key];
+      return Math.floor(asset.baseCost * Math.pow(asset.costMultiplier, asset.count));
+    }
+
+    function getTechCost(key) {
+      const t = tech[key];
+      if (key === 'firewall') return t.cost;
+      return Math.floor(t.baseCost * Math.pow(t.costMultiplier, t.level));
+    }
+
+    function getPrestigeUpgradeCost(upgradeType) {
+      const level = prestige.upgrades[upgradeType] || 0;
+      return level + 1;
+    }
+
+    // --- Dynamic UI Renderers ---
+    function renderAssets() {
+      const container = document.getElementById('assetsContainer');
+      container.innerHTML = '';
+      for (let key in assets) {
+        const asset = assets[key];
+        const cost = getAssetCost(key);
+        
+        // Compute yields with upgrades and leverage
+        let assetYieldMultiplier = 1;
+        if (key === 'computeUnit') {
+          assetYieldMultiplier += tech.quantum.level * 0.50; // +50% output per level
+        }
+        const totalMultiplier = (1 + (prestige.upgrades.opLeverage || 0)) * assetYieldMultiplier;
+        const assetYield = asset.baseYield * totalMultiplier;
+        
+        const itemDiv = document.createElement('div');
+        itemDiv.style.marginBottom = '8px';
+        itemDiv.innerHTML = `
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:4px; color:var(--text-muted);">
+            <span>${asset.name} [${asset.count}]</span>
+            <span>Yield: +C$${formatNumber(assetYield * asset.count)}/s</span>
+          </div>
+          <button class="btn btn-secondary" id="btn_asset_${key}" onclick="buyAsset('${key}')">
+            <span>Acquire ${asset.name}</span>
+            <span>C$${formatNumber(cost)}</span>
+          </button>
+        `;
+        container.appendChild(itemDiv);
+      }
+    }
+
+    function updateAssetButtonsState() {
+      for (let key in assets) {
+        const btn = document.getElementById(`btn_asset_${key}`);
+        if (btn) {
+          const cost = getAssetCost(key);
+          btn.disabled = (money < cost);
+        }
+      }
+    }
+
+    function updateTechButtonsState() {
+      const pQuantum = getTechCost('quantum');
+      const pAI = getTechCost('aiTrader');
+      const pFirewall = getTechCost('firewall');
+
+      document.getElementById('btnTechQuantum').disabled = (money < pQuantum);
+      document.getElementById('btnTechAI').disabled = (money < pAI);
+      if (!tech.firewall.owned) {
+        document.getElementById('btnTechFirewall').disabled = (money < pFirewall);
+      }
+    }
+
+    function updatePrestigeButtonsState() {
+      const cOp = getPrestigeUpgradeCost('opLeverage');
+      const cLiq = getPrestigeUpgradeCost('liquidity');
+      const cCap = getPrestigeUpgradeCost('capital');
+
+      document.getElementById('btnPrestigeOp').disabled = (prestige.points < cOp);
+      document.getElementById('btnPrestigeLiq').disabled = (prestige.points < cLiq);
+      document.getElementById('btnPrestigeCap').disabled = (prestige.points < cCap);
+    }
+
+    // --- Actions ---
     function updateHeaderMoney() {
       const el = document.getElementById("money");
-      el.textContent = money.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      el.textContent = formatNumber(money);
     }
 
     function calculateTotalAssets() {
       let totalStockVal = 0;
       for (let key in stocks) totalStockVal += stocks[key].count * stocks[key].price;
-      return money + (businessCount * businessPrice) + (propertyCount * propertyPrice) + totalStockVal;
+      
+      let totalAssetVal = 0;
+      for (let key in assets) {
+        // Approximate total asset value based on sum of standard cost
+        totalAssetVal += assets[key].count * assets[key].baseCost;
+      }
+      return money + totalAssetVal + totalStockVal;
     }
 
     function calculateIncome() {
       const scaleMult = Math.pow(2, upgradeLevel - 1);
       
-      let nodeBonus = tech.quantum.owned ? 2 : 1;
-      let stockBonus = tech.aiTrader.owned ? 1.5 : 1;
+      // Compute asset yields
+      let baseYieldTotal = 0;
+      for (let key in assets) {
+        const asset = assets[key];
+        let assetYieldMultiplier = 1;
+        if (key === 'computeUnit') {
+          assetYieldMultiplier += tech.quantum.level * 0.50;
+        }
+        baseYieldTotal += asset.count * asset.baseYield * assetYieldMultiplier;
+      }
 
-      // Prestige booster (Permanent multipliers)
-      const prestigeMult = 1 + (prestige.upgrades.opLeverage || 0);
-
-      const base = (businessCount * businessPrice * 0.1 * nodeBonus / 10) +
-                   (propertyCount * propertyPrice * 0.15 / 10);
-      
+      // Stock dividend modifiers
+      const stockBonus = 1 + (tech.aiTrader.level * 0.50); // +50% margin per level
       let dividends = 0;
-      for(let key in stocks) {
+      for (let key in stocks) {
         dividends += (stocks[key].count * stocks[key].price * (stocks[key].yield * stockBonus) / 10);
       }
+
+      // Operational Leverage prestige bonus
+      const prestigeMult = 1 + (prestige.upgrades.opLeverage || 0);
       
-      income = (base + dividends) * scaleMult * eventMultiplier * prestigeMult;
-      document.getElementById("income").textContent = (income >= 0 ? "+" : "") + income.toLocaleString(undefined, {minimumFractionDigits: 2});
+      income = (baseYieldTotal + dividends) * scaleMult * eventMultiplier * prestigeMult;
+      document.getElementById("income").textContent = (income >= 0 ? "+" : "") + formatNumber(income);
       
       // Calculate manual click value
-      clickPower = 1 + (upgradeLevel * 2) + (businessCount * 0.5);
+      clickPower = 1 + (upgradeLevel * 2) + (assets.computeUnit.count * 0.5);
     }
 
     function clickProcess(e) {
@@ -868,7 +965,7 @@
       const rect = core.getBoundingClientRect();
       const float = document.createElement('div');
       float.className = 'click-text';
-      float.textContent = '+C$' + clickPower.toFixed(1);
+      float.textContent = '+C$' + formatNumber(clickPower);
       
       const offsetX = (Math.random() - 0.5) * 40;
       const offsetY = (Math.random() - 0.5) * 40;
@@ -880,8 +977,17 @@
       setTimeout(() => float.remove(), 800);
     }
 
-    function buyBusiness() { if (money >= businessPrice) { money -= businessPrice; businessCount++; calculateIncome(); updateUI(); } }
-    function buyProperty() { if (money >= propertyPrice) { money -= propertyPrice; propertyCount++; calculateIncome(); updateUI(); } }
+    function buyAsset(key) {
+      const cost = getAssetCost(key);
+      if (money >= cost) {
+        money -= cost;
+        assets[key].count++;
+        calculateIncome();
+        renderAssets();
+        updateUI();
+        saveGame();
+      }
+    }
     
     function upgradeMining() {
       if (money >= upgradeCost) {
@@ -889,24 +995,51 @@
         upgradeLevel++;
         upgradeCost *= 5;
         calculateIncome();
+        renderAssets(); // Re-render to update yield indicators
         updateUI();
+        saveGame();
       }
     }
 
     function buyTech(t) {
-      if (!tech[t].owned && money >= tech[t].cost) {
-        money -= tech[t].cost;
-        tech[t].owned = true;
+      const cost = getTechCost(t);
+      if (money >= cost) {
+        if (t === 'firewall') {
+          if (!tech[t].owned) {
+            money -= cost;
+            tech[t].owned = true;
+            notify("Upgrade Deployed", "Enterprise Security active.", "positive");
+          }
+        } else {
+          money -= cost;
+          tech[t].level++;
+          notify("Upgrade Deployed", `${t === 'quantum' ? 'Liquid Cooling' : 'Arbitrage Analytics'} Level ${tech[t].level} deployed.`, "positive");
+        }
         updateTechUI();
         calculateIncome();
-        notify("Upgrade Deployed", `Strategic system deployed.`, "positive");
+        renderAssets();
+        updateUI();
+        saveGame();
       }
     }
 
     function updateTechUI() {
-      if(tech.quantum.owned) { let b = document.getElementById('btnTechQuantum'); b.disabled=true; b.innerHTML="<span>Liquid Cooling</span><span>[DEPLOYED]</span>"; }
-      if(tech.aiTrader.owned) { let b = document.getElementById('btnTechAI'); b.disabled=true; b.innerHTML="<span>Arbitrage Analytics</span><span>[DEPLOYED]</span>"; }
-      if(tech.firewall.owned) { let b = document.getElementById('btnTechFirewall'); b.disabled=true; b.innerHTML="<span>Enterprise Security</span><span>[DEPLOYED]</span>"; }
+      // Liquid Cooling Systems
+      const cQuantum = getTechCost('quantum');
+      document.getElementById('lblTechQuantum').textContent = `Liquid Cooling (Lvl ${tech.quantum.level})`;
+      document.getElementById('costTechQuantum').textContent = `C$${formatNumber(cQuantum)}`;
+
+      // Arbitrage Analytics
+      const cAI = getTechCost('aiTrader');
+      document.getElementById('lblTechAI').textContent = `Arbitrage Analytics (Lvl ${tech.aiTrader.level})`;
+      document.getElementById('costTechAI').textContent = `C$${formatNumber(cAI)}`;
+
+      // Enterprise Security
+      if(tech.firewall.owned) { 
+        let b = document.getElementById('btnTechFirewall'); 
+        b.disabled=true; 
+        document.getElementById('costTechFirewall').textContent = "[DEPLOYED]"; 
+      }
     }
 
     // --- Market Simulation ---
@@ -921,7 +1054,7 @@
             <div class="stock-symbol">${s.symbol}</div>
             <div class="stock-name">${s.name}</div>
           </td>
-          <td class="stock-price" id="price_${key}">C$${s.price.toFixed(2)}</td>
+          <td class="stock-price" id="price_${key}">C$${formatNumber(s.price)}</td>
           <td style="font-weight: 500;" id="count_${key}">${s.count}</td>
           <td>
             <div class="action-group">
@@ -942,7 +1075,7 @@
         
         const el = document.getElementById("price_" + key);
         if(el) {
-          el.textContent = "C$" + s.price.toFixed(2);
+          el.textContent = "C$" + formatNumber(s.price);
           el.style.color = change > 0 ? "var(--success)" : "var(--alert)";
           
           setTimeout(() => {
@@ -981,12 +1114,12 @@
     function checkPrestigeAllowance() {
       const totalAssets = calculateTotalAssets();
       const pendingEP = calculatePendingEP(totalAssets);
-      document.getElementById('pendingPrestigePoints').textContent = pendingEP;
+      document.getElementById('pendingPrestigePoints').textContent = formatNumber(pendingEP);
       
       const restructureBtn = document.getElementById('restructureBtn');
       if (totalAssets >= 1000000) {
         restructureBtn.removeAttribute('disabled');
-        restructureBtn.innerHTML = `<span>Restructure Corp</span><span style="font-size:0.68rem;">+${pendingEP} EP</span>`;
+        restructureBtn.innerHTML = `<span>Restructure Corp</span><span style="font-size:0.68rem;">+${formatNumber(pendingEP)} EP</span>`;
       } else {
         restructureBtn.setAttribute('disabled', 'true');
         restructureBtn.innerHTML = `<span>Restructure Corp</span><span style="font-size:0.68rem;">Requires C$1.00M Assets</span>`;
@@ -1003,15 +1136,21 @@
       document.getElementById('opLeverageLvl').textContent = prestige.upgrades.opLeverage;
       document.getElementById('liquidityLvl').textContent = prestige.upgrades.liquidity;
       document.getElementById('capitalLvl').textContent = prestige.upgrades.capital;
+
+      // Update cost indications on buttons
+      document.getElementById('btnPrestigeOp').textContent = `Upgrade (${getPrestigeUpgradeCost('opLeverage')} EP)`;
+      document.getElementById('btnPrestigeLiq').textContent = `Upgrade (${getPrestigeUpgradeCost('liquidity')} EP)`;
+      document.getElementById('btnPrestigeCap').textContent = `Upgrade (${getPrestigeUpgradeCost('capital')} EP)`;
     }
 
     function buyPrestigeUpgrade(upgradeType) {
-      const cost = 1; // Flat 1 EP per upgrade level for smooth gameplay
+      const cost = getPrestigeUpgradeCost(upgradeType);
       if (prestige.points >= cost) {
         prestige.points -= cost;
         prestige.upgrades[upgradeType] = (prestige.upgrades[upgradeType] || 0) + 1;
         updatePrestigeUI();
         calculateIncome();
+        renderAssets();
         saveGame();
         notify("Equity Deployment", `System restructuring bonus configured successfully.`, "positive");
       } else {
@@ -1026,14 +1165,17 @@
       const gainedEP = calculatePendingEP(totalAssets);
       prestige.points += gainedEP;
 
-      // Reset standard stats
+      // Reset statistics
       const startingCapital = 1000 + (prestige.upgrades.capital * 5000);
       money = startingCapital;
-      businessCount = 0;
-      propertyCount = 0;
       upgradeLevel = 1;
       upgradeCost = 500;
       eventMultiplier = 1;
+
+      // Reset asset counts
+      for (let key in assets) {
+        assets[key].count = 0;
+      }
 
       // Reset stock assets
       for(let key in stocks) {
@@ -1042,13 +1184,14 @@
       }
 
       // Reset normal tech
-      for(let key in tech) {
-        tech[key].owned = false;
-      }
+      tech.quantum.level = 0;
+      tech.aiTrader.level = 0;
+      tech.firewall.owned = false;
 
-      notify("Corporate Restructured", `Earned ${gainedEP} Equity Points. Initial scale reset.`, "positive");
+      notify("Corporate Restructured", `Earned ${formatNumber(gainedEP)} Equity Points. Initial scale reset.`, "positive");
       
       // Update UI
+      renderAssets();
       renderStockTable();
       updateTechUI();
       updatePrestigeUI();
@@ -1082,19 +1225,16 @@
       const incomeEl = document.getElementById("income");
 
       if (r < 0.2) {
-        // Sector Rally
         notify("Sector Rally", "Technology sector records strong positive growth. Securities +20%", "positive");
         for(let key in stocks) stocks[key].price *= 1.20;
       } 
       else if (r < 0.4) {
-        // Operational Surge
         notify("Operational Surge", "Overall output performance increased +50% for 20s", "positive");
         eventMultiplier = 1.5;
         alertBadge.style.display = "inline-block"; alertBadge.style.color = "var(--success)"; alertBadge.style.background = "var(--success-bg)"; alertBadge.textContent = "SURGE";
         setTimeout(() => { eventMultiplier = 1; alertBadge.style.display="none"; calculateIncome(); }, 20000);
       }
       else if (r < 0.6) {
-        // Disruptive Event
         if (tech.firewall.owned) {
           notify("Security Intercepted", "Enterprise Security deflected a hostile disruption event.", "positive");
         } else {
@@ -1108,7 +1248,6 @@
         }
       }
       else if (r < 0.7) {
-        // Market Sell-off
         if (tech.firewall.owned) {
           notify("Assets Safeguarded", "Enterprise protection mitigated systemic data & asset degradation.", "positive");
         } else {
@@ -1122,9 +1261,7 @@
     function updateUI() {
       document.getElementById("upgradeLevel").textContent = upgradeLevel;
       document.getElementById("miningMultDisplay").textContent = Math.pow(2, upgradeLevel - 1);
-      document.getElementById("upgradeCostDisplay").textContent = upgradeCost.toLocaleString();
-      document.getElementById("businessCount").textContent = businessCount;
-      document.getElementById("propertyCount").textContent = propertyCount;
+      document.getElementById("upgradeCostDisplay").textContent = formatNumber(upgradeCost);
 
       updateLeaderboard();
     }
@@ -1144,7 +1281,7 @@
             <span style="opacity:0.4; margin-right:8px;">${(i+1).toString().padStart(2, '0')}</span>
             ${p.name}
           </div>
-          <div style="font-weight: 600; color: #fff;">C$${p.asset.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+          <div style="font-weight: 600; color: #fff;">C$${formatNumber(p.asset)}</div>
         `;
         b.appendChild(div);
       });
@@ -1152,27 +1289,75 @@
 
     // --- Persistent Storage ---
     function saveGame() {
-      const state = { money, businessCount, propertyCount, upgradeLevel, upgradeCost, stocks, tech, prestige };
-      localStorage.setItem('anmumCoreV2', JSON.stringify(state));
+      const state = { money, upgradeLevel, upgradeCost, stocks, tech, prestige, assets };
+      localStorage.setItem('anmumCoreV3', JSON.stringify(state));
     }
     
     function loadGame() {
-      const s = localStorage.getItem('anmumCoreV2');
+      const s = localStorage.getItem('anmumCoreV3');
       if(s) {
         const d = JSON.parse(s);
-        money=d.money||1000; businessCount=d.businessCount||0; propertyCount=d.propertyCount||0; 
-        upgradeLevel=d.upgradeLevel||1; upgradeCost=d.upgradeCost||500;
-        if(d.stocks) {
-          for(let k in d.stocks) {
-            if(stocks[k]) { stocks[k].count = d.stocks[k].count; stocks[k].price = d.stocks[k].price; }
+        money = d.money || 1000; 
+        upgradeLevel = d.upgradeLevel || 1; 
+        upgradeCost = d.upgradeCost || 500;
+        
+        // Load assets safely
+        if (d.assets) {
+          for (let k in d.assets) {
+            if (assets[k]) {
+              assets[k].count = d.assets[k].count || 0;
+            }
           }
         }
-        if(d.tech) tech = d.tech;
-        if(d.prestige) prestige = d.prestige;
+        
+        if (d.stocks) {
+          for(let k in d.stocks) {
+            if(stocks[k]) { 
+              stocks[k].count = d.stocks[k].count || 0; 
+              stocks[k].price = d.stocks[k].price || getInitialStockPrice(k); 
+            }
+          }
+        }
+        
+        if (d.tech) {
+          for (let k in d.tech) {
+            if (tech[k]) {
+              if (k === 'firewall') tech[k].owned = d.tech[k].owned || false;
+              else tech[k].level = d.tech[k].level || 0;
+            }
+          }
+        }
+        
+        if (d.prestige) prestige = d.prestige;
+      } else {
+        // Fallback migration check for old keys V2
+        const sOld = localStorage.getItem('anmumCoreV2');
+        if (sOld) {
+          const dOld = JSON.parse(sOld);
+          money = dOld.money || 1000;
+          assets.computeUnit.count = dOld.businessCount || 0;
+          assets.dataCenter.count = dOld.propertyCount || 0;
+          upgradeLevel = dOld.upgradeLevel || 1;
+          upgradeCost = dOld.upgradeCost || 500;
+          if (dOld.stocks) {
+            for(let k in dOld.stocks) {
+              if(stocks[k]) { 
+                stocks[k].count = dOld.stocks[k].count || 0; 
+                stocks[k].price = dOld.stocks[k].price || getInitialStockPrice(k); 
+              }
+            }
+          }
+          if (dOld.prestige) prestige = dOld.prestige;
+          localStorage.removeItem('anmumCoreV2'); // Clean up
+        }
       }
     }
     
-    function resetGame() { localStorage.removeItem('anmumCoreV2'); location.reload(); }
+    function resetGame() { 
+      localStorage.removeItem('anmumCoreV3'); 
+      localStorage.removeItem('anmumCoreV2'); 
+      location.reload(); 
+    }
 
     // --- Line Chart Configuration ---
     let mainChart;
